@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
+    <title></title>
+
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+
+    <!-- IF using Sass (run gulp sass first), then uncomment below and remove the CSS includes above
+    <link href="css/ionic.app.css" rel="stylesheet">
+    -->
+
+    <!-- ionic/angularjs js -->
+    <script src="lib/ionic/js/ionic.bundle.js"></script>
+
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
+
+    <!-- your app's js -->
+    <script src="js/app.js"></script>
+    <script src="js/controller.js"></script>
+    
+    
+    
+  </head>
+  <body ng-app="app" ng-controller="SearchController as search">
+	    
+    <!--<ion-pane>-->
+      
+      <script id="connect.html" type="text/ng-template">
+
+	  <div class="modal">
+
+		<!-- Modal header bar -->
+		<ion-header-bar class="bar-secondary">
+		  <h1 class="title">Se connecter</h1>
+		  <button class="button button-clear button-energized" ng-click="search.closeConnect()">Annuler</button>
+		</ion-header-bar>
+
+		<!-- Modal content area -->
+		<ion-content>
+
+		  <form ng-submit="search.connectUser(credentials)">
+			<div class="list">
+			  <label class="item item-input">
+				<input type="text" placeholder="identifiant" ng-model="credentials.login">
+			  </label>
+			  <label class="item item-input">
+				<input type="password" placeholder="mot de passe" ng-model="credentials.mdp">
+			  </label>
+					</div>
+					<div class="padding">
+						<button type="submit" class="button button-block button-energized">Se connecter</button>
+					</div>
+				</form>
+				<p ng-if="search.loginError" class="alert-text">Identifiants incorrects</p>
+			</ion-content>
+		</div>
+	</script>
+
+      
+      
+      <ion-tabs class="tabs-energized tabs-icon-only">
+
+		<ion-tab title="Recherche" icon-on="ion-ios-search-strong" icon-off="ion-ios-search">
+			<ion-header-bar class="bar-energized bar-header bar-light">
+				<h1 class="title">BlaBlaCar 2.0</h1>
+			  </ion-header-bar>
+		<ion-content class="backgrounded">
+		  <form ng-submit="search.fillMatchingTrajets()">
+			<div class="list">
+				<label class="item item-input input-search-custom">
+					<input type="text" id="srcLocation" placeholder="De" ng-model="search.searchInputStart"/>
+				</label>
+				<label class="item item-input input-search-custom">
+					<input type="text" id="dstLocation" placeholder="À" ng-model="search.searchInputDestination"/>
+				</label>
+				<label class="item item-input input-search-custom">					
+					<input type="date" id="date" placeholder="jj/mm/aaaa" ng-model="search.searchInputDate"/>
+				</label>
+				<button class="button button-block button-energized" type="submit">Rechercher</button>
+					
+				</div>
+			</div>
+		  </form>
+		  <div ng-if="search.matchingTrajets.length > 0"</div>
+			<select class="select-ordering form-control pull-right" ng-model="search.order" ng-options="order as order.title for order in search.ordersList"></select>
+				<div class="customcarddiv">
+					<div class="row card customcard"
+						ng-repeat="trajet in search.matchingTrajets | orderBy:search.order.key:search.order.reverse">
+						<div class="col">
+							<h4><strong>{{trajet.depart}} -> {{trajet.destination}}</strong></h4>
+							<div class="row">
+								<div class="col">
+									<p>Date : {{trajet.date.toLocaleDateString()}}</p>
+									<p>Chauffeur : {{search.getUser(trajet.chauffeur).nom}}</p>
+									<p>Nombre de places : {{trajet.nbPlaceMax}}</p>
+									<p>Places restantes : {{trajet.nbPlaceMax - trajet.passagers.length}}</p>
+								</div>
+								<div class="col col-center" ng-if="trajet.passagers.length < trajet.nbPlaceMax && trajet.passagers.indexOf(search.connectedUser.id) != 0 && trajet.chauffeur != search.connectedUser.id">
+									<form ng-submit="search.book(trajet.id)" >
+										<button class="button button-energized" type="submit">Réserver</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			
+		  </div>	
+      </ion-content>
+		  </ion-tab>
+
+		  <ion-tab title="MonCompte" icon-on="ion-ios-home" icon-off="ion-ios-home-outline">
+			  <ion-header-bar class="bar-energized bar-header bar-light">
+				<h1 class="title">BlaBlaCar 2.0</h1>
+			  </ion-header-bar>
+			  <ion-content class="backgrounded">
+				<div ng-include="'notConnected.html'"></div>
+				<div ng-if="search.connectedUser != null">
+					<div class="card customcard">
+						<div class="list">
+							<label class="item item-input">
+								<span class="input-label">Nom</span>
+							   	<input type="text" placeholder="{{search.connectedUser.nom}}" ng-model="search.connectedUser.nom">
+							 </label>
+							 <label class="item item-input">
+								<span class="input-label">Login</span>
+							   	<input type="text" placeholder="{{search.connectedUser.login}}" ng-model="search.connectedUser.login">
+							 </label>
+							 <label class="item item-input">
+								<span class="input-label">Mot de passe</span>
+							   	<input type="password" placeholder="{{search.connectedUser.mdp}}" ng-model="search.connectedUser.mdp">
+							 </label>
+							 <button ng-click="search.deconnectUser()" class="button button-energized">Se déconnecter</button>
+						</div>
+					</div>
+				</div>
+			</ion-content>
+			
+		  </ion-tab>
+
+		  <ion-tab title="MesTrajets" icon-on="ion-ios-calendar" icon-off="ion-ios-calendar-outline">
+				<ion-header-bar class="bar-energized bar-header bar-light">
+					<h1 class="title">BlaBlaCar 2.0</h1>
+			  	</ion-header-bar>
+			  	<ion-content class="backgrounded">
+					<div ng-include="'notConnected.html'"></div>
+					<div ng-if="search.connectedUser != null">
+						<div class="card customcard" ng-repeat="trajet in search.getConnectedUserBookedTrajets()">
+							<div>
+								<h4><strong>{{trajet.depart}} -> {{trajet.destination}}</strong></h4>
+								<div class="row">
+									<div class="col col-66">
+										<p>Date : {{trajet.date.toLocaleDateString()}}</p>
+										<p>Chauffeur : {{search.getUser(trajet.chauffeur).nom}}</p>
+										<p>Nombre de places : {{trajet.nbPlaceMax}}</p>
+										<p>Places restantes : {{trajet.nbPlaceMax - trajet.passagers.length}}</p>
+									</div>
+									<div class="col col-center" >
+										<form ng-submit="search.unbook(trajet.id)" ng-if="trajet.chauffeur != search.connectedUser.id">
+											<button class="button button-energized" type="submit">Annuler réservation</button>
+										</form>
+										<form ng-submit="search.cancelTrajet(trajet.id)" ng-if="trajet.chauffeur == search.connectedUser.id">
+											<button class="button button-energized" type="submit">Annuler trajet</button>
+										</form>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+			  	</ion-content>
+		  </ion-tab>
+		  
+		  <ion-tab title="AddTrajet" icon-on="ion-ios-compose" icon-off="ion-ios-compose-outline">
+				<ion-header-bar class="bar-energized bar-header bar-light">
+					<h1 class="title">BlaBlaCar 2.0</h1>
+			  	</ion-header-bar>
+			  	<ion-content class="backgrounded">
+					<div ng-include="'notConnected.html'"></div>
+					<div ng-if="search.connectedUser != null">
+						<form ng-submit="search.createTrajet(trajetInformations)">
+							<div class="list">
+								<label class="item item-input">
+									<span class="input-label">Départ</span>
+								   	<input type="text" placeholder="Paris, Lyon, ..." ng-model="trajetInformations.depart">
+								 </label>
+								 <label class="item item-input">
+									<span class="input-label">Destination</span>
+								   	<input type="text" placeholder="Bordeaux, Lilles, ..." ng-model="trajetInformations.destination">
+								 </label>
+								 <label class="item item-input">
+									<span class="input-label">Date</span>
+								   	<input type="date" placeholder="2015-04-26" ng-model="trajetInformations.date">
+								 </label>
+								 <label class="item item-input">
+									<span class="input-label">Nombre de places</span>
+								   	<input type="text" placeholder="1, 4, ..." ng-model="trajetInformations.nbPlaces">
+								 </label>
+							</div>
+							<div class="padding">
+								<button type="submit" class="button button-block button-energized">Créer trajet</button>
+							</div>
+						</form>
+					</div>
+			  	</ion-content>
+		  </ion-tab>
+	</ion-tabs>
+  </body>
+</html>
