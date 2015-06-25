@@ -59,6 +59,43 @@
 			</ion-content>
 		</div>
 	</script>
+	
+	<script id="createUser.html" type="text/ng-template">
+
+	  <div class="modal">
+
+		<!-- Modal header bar -->
+		<ion-header-bar class="bar-secondary">
+		  <h1 class="title">Créer un compte</h1>
+		  <button class="button button-clear button-energized" ng-click="search.closeCreateUser()">Annuler</button>
+		</ion-header-bar>
+
+		<!-- Modal content area -->
+		<ion-content>
+
+		  <form ng-submit="search.createUser(credentials)">
+			<div class="list">
+			  <label class="item item-input">
+				<input type="text" placeholder="nom" ng-model="credentials.nom">
+			  </label>
+			  <label class="item item-input">
+				<input type="text" placeholder="identifiant" ng-model="credentials.login">
+			  </label>
+			  <label class="item item-input">
+				<input type="password" placeholder="mot de passe" ng-model="credentials.mdp">
+			  </label>
+			  <label class="item item-input">
+				<input type="password" placeholder="vérifiez votre mot de passe" ng-model="credentials.checkMdp">
+			  </label>
+					</div>
+					<div class="padding">
+						<button type="submit" class="button button-block button-energized">Créer le compte</button>
+					</div>
+				</form>
+				<!--<p ng-if="search.loginError" class="alert-text">Identifiants incorrects</p>-->
+			</ion-content>
+		</div>
+	</script>
 
       
       

@@ -7,6 +7,10 @@ angular.module('app').controller("SearchController", function($scope,$ionicModal
     $ionicModal.fromTemplateUrl('connect.html', function(modal) {
 		$scope.connectModal = modal;
 		}, {scope:$scope, animation:'slide-in-up'});
+		
+	$ionicModal.fromTemplateUrl('createUser.html', function(modal) {
+		$scope.createUserModal = modal;
+		}, {scope:$scope, animation:'slide-in-up'});
     
     $scope.lolz = 69 ;
 	
@@ -19,6 +23,7 @@ angular.module('app').controller("SearchController", function($scope,$ionicModal
     
     viewModel.connectedUser = null;
 	viewModel.loginError = false ;
+	viewModel.userAlreadyExists = false ;
     
 	//////////////////////////////////////////
 	//Listes de données
@@ -131,6 +136,77 @@ angular.module('app').controller("SearchController", function($scope,$ionicModal
 	
 	viewModel.showConnect = function() {
 		$scope.connectModal.show();
+	};
+	
+	//////////////////////////////////////////
+	//Fonctions de création de compte
+	//////////////////////////////////////////
+	
+	viewModel.checkLoginExists = function (login) {
+		
+		var loginAlreadyExists = false ;
+		
+		viewModel.users.forEach(function(user) {
+			if(login == user.login)
+			{
+				loginAlreadyExists = true ;
+			}
+		});
+		
+		return loginAlreadyExists ;
+		
+	};
+	
+	viewModel.userInfosAreValid = function (userInfos) {
+		if(userInfos.nom == null || userInfos.nom.length < 3) {
+			return false ;
+		}
+		if(userInfos.login == null || userInfos.login.length < 3) {
+			return false ;
+		}
+		if(userInfos.mdp == null || userInfos.mdp.length < 6) {
+			return false ;
+		}
+		if(userInfos.checkMdp != userInfos.mdp) {
+			return false ;
+		}
+		
+	};
+	
+	viewModel.closeCreateUser = function () {
+		$scope.createUserModal.hide();
+	};
+	
+	viewModel.createUser = function (credentials) {
+		var alreadyExists = viewModel.checkLoginExists(credentials.login);
+		
+		if (alreadyExists == true ) {
+			viewModel.userAlreadyExists = true ;
+		}
+		else {
+			viewModel.loginError = false ;
+			
+			var newId = 0 ;
+			viewModel.users.forEach(function(user) {
+				if(user.id >= newId) {
+					newId = user.id + 1 ;
+				}
+			});
+			
+			var newUser = {
+				id : newId,
+				nom : credentials.nom,
+				login : credentials.login,
+				mdp : credentials.mdp
+			};
+			
+			viewModel.users.push(newUser);
+			viewModel.closeCreateUser();
+		}
+	};
+	
+	viewModel.showCreateUser = function() {
+		$scope.createUserModal.show();
 	};
 	
 	//////////////////////////////////////////
