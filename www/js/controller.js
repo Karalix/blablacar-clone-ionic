@@ -24,6 +24,7 @@ angular.module('app').controller("SearchController", function($scope,$ionicModal
     viewModel.connectedUser = null;
 	viewModel.loginError = false ;
 	viewModel.userAlreadyExists = false ;
+	viewModel.infosAreValid = true ;
     
 	//////////////////////////////////////////
 	//Listes de données
@@ -171,6 +172,8 @@ angular.module('app').controller("SearchController", function($scope,$ionicModal
 			return false ;
 		}
 		
+		return true ;
+		
 	};
 	
 	viewModel.closeCreateUser = function () {
@@ -180,11 +183,17 @@ angular.module('app').controller("SearchController", function($scope,$ionicModal
 	viewModel.createUser = function (credentials) {
 		var alreadyExists = viewModel.checkLoginExists(credentials.login);
 		
+		if(!viewModel.userInfosAreValid(credentials)) {
+			viewModel.infosAreValid = false ;
+			return ;
+		}
+		viewModel.infosAreValid = true ;
+		
 		if (alreadyExists == true ) {
 			viewModel.userAlreadyExists = true ;
 		}
 		else {
-			viewModel.loginError = false ;
+			viewModel.userAlreadyExists = false ;
 			
 			var newId = 0 ;
 			viewModel.users.forEach(function(user) {
