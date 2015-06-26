@@ -92,7 +92,8 @@
 						<button type="submit" class="button button-block button-energized">Créer le compte</button>
 					</div>
 				</form>
-				<!--<p ng-if="search.loginError" class="alert-text">Identifiants incorrects</p>-->
+				<p ng-if="search.userAlreadyExists" class="alert-text">Ce login existe déjà.</p>
+				<p ng-if="!search.infosAreValid" class="alert-text">Les informations rentrées ne sont pas valides.</p>
 			</ion-content>
 		</div>
 	</script>
